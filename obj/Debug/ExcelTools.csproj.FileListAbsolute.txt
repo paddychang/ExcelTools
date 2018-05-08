@@ -1,0 +1,11 @@
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\obj\Debug\ExcelTools.csprojResolveAssemblyReference.cache
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\ExcelTools.dll
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\ExcelTools.pdb
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\EPPlus.dll
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\ExcelDataReader.DataSet.dll
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\ExcelDataReader.dll
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\EPPlus.xml
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\ExcelDataReader.xml
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\bin\Debug\ExcelDataReader.DataSet.xml
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\obj\Debug\ExcelTools.dll
+C:\Users\paddy\Desktop\Paddy\Test\ExcelTools\ExcelTools\ExcelTools\obj\Debug\ExcelTools.pdb
