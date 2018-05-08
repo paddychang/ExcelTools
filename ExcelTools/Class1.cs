@@ -30,13 +30,13 @@ namespace ExcelTools
                                 DataRow dr = dtCsv.NewRow();
                                 for (int j = 0; j < 37; j++)
                                 {
-                                    dtCsv.Columns.Add(); // Add headers
+                                    dtCsv.Columns.Add();
                                 }
                                 for (int j = 0; j < rowValues.Count(); j++)
                                 {
                                     if (rowValues[j].ToString() != "")
                                     {
-                                        dtCsv.Columns[j].ColumnName = rowValues[j].ToString(); // Add headers     
+                                        dtCsv.Columns[j].ColumnName = rowValues[j].ToString();   
                                         dr[j] = rowValues[j].ToString();
                                     }
                                     else
@@ -78,7 +78,7 @@ namespace ExcelTools
                                         dr[k - count] = rowValues[k].ToString();
                                     }
                                 }
-                                dtCsv.Rows.Add(dr); // Add other rows  
+                                dtCsv.Rows.Add(dr);
                             }
                         }
                     }
@@ -95,12 +95,12 @@ namespace ExcelTools
 
             if (filePath.EndsWith(".xlsx") || filePath.EndsWith(".xlsm"))
             {
-                //Reading from a OpenXml Excel file (2007 format; *.xlsx)
+                // Reading from a OpenXml Excel file (2007 format; *.xlsx)
                 excelReader = ExcelReaderFactory.CreateOpenXmlReader(input);
             }
             else
             {
-                //Reading from a binary Excel file ('97-2003 format; *.xls)
+                // Reading from a binary Excel file ('97-2003 format; *.xls)
                 excelReader = ExcelReaderFactory.CreateBinaryReader(input);
             }
             ds = excelReader.AsDataSet();
