@@ -36,7 +36,7 @@ namespace ExcelTools
                                 {
                                     if (rowValues[j].ToString() != "")
                                     {
-                                        dtCsv.Columns[j].ColumnName = rowValues[j].ToString();   
+                                        dtCsv.Columns[j].ColumnName = rowValues[j].ToString();
                                         dr[j] = rowValues[j].ToString();
                                     }
                                     else
@@ -205,33 +205,25 @@ namespace ExcelTools
         {
             for (int i = 0; i < ds.Tables.Count; i++)
             {
-                for (int j = 0; j < ds.Tables[i].Columns.Count; j++)
+                DataColumnCollection col = ds.Tables[i].Columns;
+                if (col.Count != 0)
                 {
-                    ds.Tables[i].Columns[j].ColumnName = ds.Tables[i].Rows[0][i].ToString();
+                    for (int j = 0; j < ds.Tables[i].Columns.Count; j++)
+                    {                        
+                        ds.Tables[i].Columns[j].ColumnName = ds.Tables[i].Rows[0][j].ToString();
+                    }
                 }
             }
             return ds;
         }
 
-        public static DataTable SetTableName(DataTable dt, string tableName)
+        public static DataSet SetTableName(DataSet ds, string tableName, int index)
         {
-            dt.TableName = tableName;
-            return dt;
-        }
-
-        public static DataSet SetTableName(DataSet ds, List<string> nameList)
-        {
-            for (int i = 0; i < ds.Tables.Count; i++)
-            {
-                foreach (string item in nameList)
-                {
-                    ds.Tables[i].TableName = item;
-                }
-            }
+            ds.Tables[index].TableName = tableName;
             return ds;
         }
 
-        public static DataTable SetCoulumnTypes(DataTable dt, Type type, List<int> list)
+        public static DataTable SetColumnTypes(DataTable dt, Type type, List<int> list)
         {
             DataTable dtNew = new DataTable();
 
@@ -278,27 +270,36 @@ namespace ExcelTools
 
         public static void GenerateExcelFile(DataSet ds, string paramFileFullPath, bool printCoulumnName)
         {
+            Console.WriteLine(ds.Tables[0].Columns[0].ColumnName.ToString());
             using (ExcelPackage package = new ExcelPackage())
             {
                 for (int i = 0; i < ds.Tables.Count; i++)
                 {
-                    ExcelWorksheet ws = package.Workbook.Worksheets.Add(ds.Tables[i].TableName.ToString());
-                    ws.Cells["A1"].LoadFromDataTable(ds.Tables[i], printCoulumnName);
-                    package.SaveAs(new FileInfo(paramFileFullPath));
+                    DataColumnCollection col = ds.Tables[i].Columns;
+                    if (col.Count > 0)
+                    {
+                        ExcelWorksheet ws = package.Workbook.Worksheets.Add(ds.Tables[i].TableName.ToString());
+                        ws.Cells["A1"].LoadFromDataTable(ds.Tables[i], printCoulumnName);
+                    }
                 }
-            }
-        }
-
-        public static void GenerateExcelFile(DataTable dt, string paramFileFullPath, bool printCoulumnName)
-        {
-            using (ExcelPackage package = new ExcelPackage())
-            {
-                ExcelWorksheet ws = package.Workbook.Worksheets.Add(dt.TableName.ToString());
-                ws.Cells["A1"].LoadFromDataTable(dt, printCoulumnName);
                 package.SaveAs(new FileInfo(paramFileFullPath));
             }
         }
-    }
 
+        public static DataTable InsertColumn(DataTable dt, string columnName, Type type, int index)
+        {
+            DataColumn Col = dt.Columns.Add(columnName, type);
+            Col.SetOrdinal(index); // To place the column in position index;
+            return dt;
+        }
+
+        public static DataSet InsertColumn(DataSet ds, string columnName, Type type, int index, int tableIndex)
+        {
+            DataColumn Col = ds.Tables[tableIndex].Columns.Add(columnName, type);
+            Col.SetOrdinal(index); // To place the column in position index;
+            return ds;
+        }
+
+    }
 }
 
