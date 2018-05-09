@@ -8,9 +8,9 @@ using System.Linq;
 
 namespace ExcelTools
 {
-    public static class DataSetModify
+    public class DataSetModify
     {
-        public static DataTable ReadCsvFile(string filePath)
+        public DataTable ReadCsvFile(string filePath)
         {
             string Fulltext;
             DataTable dtCsv = new DataTable();
@@ -24,70 +24,72 @@ namespace ExcelTools
                     for (int i = 0; i < rows.Count() - 1; i++)
                     {
                         string[] rowValues = rows[i].Split(','); // Split each row by comma
+
+                        if (i == 0)
                         {
-                            if (i == 0)
+                            DataRow dr = dtCsv.NewRow();
+                            for (int j = 0; j < rowValues.Count(); j++)
                             {
-                                DataRow dr = dtCsv.NewRow();
-                                for (int j = 0; j < 37; j++)
+                                dtCsv.Columns.Add();
+                            }
+                            for (int k = 0; k < rowValues.Count(); k++)
+                            {
+                                if (rowValues[k].ToString() != "")
                                 {
-                                    dtCsv.Columns.Add();
+                                    dtCsv.Columns[k].ColumnName = rowValues[k].ToString();
+                                    dr[k] = rowValues[k].ToString();
                                 }
-                                for (int j = 0; j < rowValues.Count(); j++)
+                                else
                                 {
-                                    if (rowValues[j].ToString() != "")
-                                    {
-                                        dtCsv.Columns[j].ColumnName = rowValues[j].ToString();
-                                        dr[j] = rowValues[j].ToString();
-                                    }
-                                    else
-                                        dtCsv.Columns[j].ColumnName = "Coulumn" + j;
-                                    dr[j] = "Coulumn" + j;
+                                    dtCsv.Columns[k].ColumnName = "Coulumn" + k;
+                                    dr[k] = "Coulumn" + k;
                                 }
                             }
-                            else
+                        }
+                        else
+                        {
+                            DataRow dr = dtCsv.NewRow();
+                            int count = 0;
+                            for (int k = 0; k < rowValues.Count(); k++)
                             {
-                                DataRow dr = dtCsv.NewRow();
-                                int count = 0;
-                                for (int k = 0; k < rowValues.Count(); k++)
+                                if (rowValues[k].ToString() == null)
+                                    dr[k] = DBNull.Value;
+                                else if (rowValues[k].ToString().Contains("\""))
                                 {
-                                    if (rowValues[k].ToString() == null)
-                                        dr[k] = DBNull.Value;
-                                    else if (rowValues[k].ToString().Contains("\""))
+                                    string tmp = rowValues[k].ToString();
+                                    for (int m = k + 1; m < rowValues.Count(); m++)
                                     {
-                                        string tmp = rowValues[k].ToString();
-                                        for (int m = k + 1; m < rowValues.Count(); m++)
+                                        if (rowValues[m].ToString().Contains("\""))
                                         {
-                                            if (rowValues[m].ToString().Contains("\""))
-                                            {
-                                                tmp = tmp + "," + rowValues[m].ToString();
-                                                tmp = tmp.Replace("\"", "");
-                                                count++;
-                                                k = m;
-                                                break;
-                                            }
-                                            else
-                                            {
-                                                tmp = tmp + "," + rowValues[m].ToString();
-                                                count++;
-                                            }
+                                            tmp = tmp + "," + rowValues[m].ToString();
+                                            tmp = tmp.Replace("\"", "");
+                                            count++;
+                                            k = m;
+                                            break;
                                         }
-                                        dr[k - count] = tmp;
+                                        else
+                                        {
+                                            tmp = tmp + "," + rowValues[m].ToString();
+                                            count++;
+                                        }
                                     }
-                                    else
-                                    {
-                                        dr[k - count] = rowValues[k].ToString();
-                                    }
+                                    dr[k - count] = tmp;
                                 }
-                                dtCsv.Rows.Add(dr);
+                                else
+                                {
+                                    dr[k - count] = rowValues[k].ToString();
+                                }
                             }
+                            dtCsv.Rows.Add(dr);
                         }
                     }
                 }
+                Console.WriteLine(dtCsv.Columns.Count);
                 return dtCsv;
             }
         }
 
-        public static DataSet ReadExcelFile(string filePath)
+        public DataSet ReadExcelFile(string filePath)
         {
             DataSet ds = new DataSet();
             FileStream input = File.Open(filePath, FileMode.Open, FileAccess.Read);
@@ -108,7 +110,7 @@ namespace ExcelTools
             return ds;
         }
 
-        public static void PrintDataset(DataSet ds)
+        public void PrintDataset(DataSet ds)
         {
             Console.WriteLine("Tables in '{0}' DataSet.\n", ds.DataSetName);
             foreach (DataTable dt in ds.Tables)
@@ -129,7 +131,7 @@ namespace ExcelTools
             }
         }
 
-        public static void PrintDataTable(DataTable table)
+        public void PrintDataTable(DataTable table)
         {
             foreach (DataRow dataRow in table.Rows)
             {
@@ -140,13 +142,13 @@ namespace ExcelTools
             }
         }
 
-        public static void PrintList<T>(IEnumerable<T> list)
+        public void PrintList<T>(IEnumerable<T> list)
         {
             foreach (var item in list)
                 Console.WriteLine(item);
         }
 
-        public static DataSet EmptyRowsRemoving(DataSet ds, int nonEmptyColumnIndex)
+        public DataSet EmptyRowsRemoving(DataSet ds, int nonEmptyColumnIndex)
         {
             for (int i = 0; i < ds.Tables.Count; i++)
             {
@@ -173,7 +175,7 @@ namespace ExcelTools
             return ds;
         }
 
-        public static DataSet EmptyColunmsRemoving(DataSet ds)
+        public DataSet EmptyColunmsRemoving(DataSet ds)
         {
             for (int i = 0; i < ds.Tables.Count; i++)
             {
@@ -192,16 +194,17 @@ namespace ExcelTools
             return ds;
         }
 
-        public static DataTable SetColumnName(DataTable dt)
+        public DataTable SetColumnName(DataTable dt)
         {
             for (int i = 0; i < dt.Columns.Count; i++)
             {
                 dt.Columns[i].ColumnName = dt.Rows[0][i].ToString();
+                dt.AcceptChanges();
             }
             return dt;
         }
 
-        public static DataSet SetColumnName(DataSet ds)
+        public DataSet SetColumnName(DataSet ds)
         {
             for (int i = 0; i < ds.Tables.Count; i++)
             {
@@ -210,20 +213,31 @@ namespace ExcelTools
                 {
                     for (int j = 0; j < ds.Tables[i].Columns.Count; j++)
                     {
-                        ds.Tables[i].Columns[j].ColumnName = ds.Tables[i].Rows[0][j].ToString();
+                        if (ds.Tables[i].Columns[j].ToString() == "")
+                        {
+                            ds.Tables[i].Columns[j].ColumnName = "Column" + i;
+                            ds.AcceptChanges();
+                        }
+                        else
+                        {
+                            Console.WriteLine(ds.Tables[i].Rows[0][j].ToString());
+                            ds.Tables[i].Columns[j].ColumnName = ds.Tables[i].Rows[0][j].ToString();
+                            ds.AcceptChanges();
+                        }
                     }
                 }
             }
             return ds;
         }
 
-        public static DataSet SetTableName(DataSet ds, string tableName, int index)
+        public DataSet SetTableName(DataSet ds, string tableName, int index)
         {
             ds.Tables[index].TableName = tableName;
+            ds.AcceptChanges();
             return ds;
         }
 
-        public static DataTable SetColumnTypes(DataTable dt, Type type, int columnIndex)
+        public DataTable SetColumnTypes(DataTable dt, Type type, int columnIndex)
         {
             DataTable dtNew = new DataTable();
 
@@ -231,6 +245,8 @@ namespace ExcelTools
             {
                 if (columnIndex == i)
                     dtNew.Columns.Add(dt.Columns[i].ColumnName, type);
+                else
+                    dtNew.Columns.Add(dt.Columns[i].ColumnName, typeof(string));
             }
             for (int i = 0; i < dt.Rows.Count; i++)
             {
@@ -239,11 +255,11 @@ namespace ExcelTools
                 {
                     if (dt.Rows[i][j].ToString() == "")
                     {
-                        if (type == typeof(int))
+                        if (type == typeof(int) && columnIndex == j)
                             dtNew.Rows[i][j] = 0;
-                        else if (type == typeof(float))
+                        else if (type == typeof(float) && columnIndex == j)
                             dtNew.Rows[i][j] = 0.0;
-                        else if (type == typeof(string))
+                        else
                             dtNew.Rows[i][j] = DBNull.Value;
                     }
                     else
@@ -252,10 +268,60 @@ namespace ExcelTools
             }
             dt = null;
             dt = dtNew.Copy();
+            dt.AcceptChanges();
             return dt;
         }
 
-        public static DataTable SetColumnTypes(DataTable dt, Type type, List<int> columnList)
+        public DataSet SetColumnTypes(DataSet ds, Type type, int tableIndex, int columnIndex)
+        {
+            DataTable dtNew = new DataTable();
+            DataSet dsNew = new DataSet();
+
+            for (int i = 0; i < ds.Tables[tableIndex].Columns.Count; i++)
+            {
+                if (columnIndex == i)
+                    dtNew.Columns.Add(ds.Tables[tableIndex].Columns[i].ColumnName, type);
+                else
+                    dtNew.Columns.Add(ds.Tables[tableIndex].Columns[i].ColumnName, typeof(string));
+            }
+            for (int i = 0; i < ds.Tables[tableIndex].Rows.Count; i++)
+            {
+                dtNew.Rows.Add();
+                for (int j = 0; j < ds.Tables[tableIndex].Columns.Count; j++)
+                {
+                    if (ds.Tables[tableIndex].Rows[i][j].ToString() == "")
+                    {
+                        if (ds.Tables[tableIndex].Columns[j].DataType == typeof(int) && columnIndex == j)
+                            dtNew.Rows[i][j] = 0;
+                        else if (ds.Tables[tableIndex].Columns[j].DataType == typeof(float) && columnIndex == j)
+                            dtNew.Rows[i][j] = 0.0;
+                        else
+                            dtNew.Rows[i][j] = DBNull.Value;
+                    }
+                    else
+                        dtNew.Rows[i][j] = ds.Tables[tableIndex].Rows[i][j];
+                }
+            }
+            for (int i = 0; i < ds.Tables.Count; i++)
+            {
+                if (i == tableIndex)
+                {
+                    dtNew.TableName = ds.Tables[i].TableName.ToString();
+                    dsNew.Tables.Add(dtNew);
+                }
+                else
+                {
+                    dsNew.Tables.Add(ds.Tables[i]);
+                }
+            }
+            dsNew.AcceptChanges();
+            ds = null;
+            ds = dsNew.Copy();
+            ds.AcceptChanges();
+            return ds;
+        }
+
+        public DataTable SetColumnTypes(DataTable dt, Type type, List<int> columnList)
         {
             DataTable dtNew = new DataTable();
 
@@ -265,6 +331,8 @@ namespace ExcelTools
                 {
                     if (item == i)
                         dtNew.Columns.Add(dt.Columns[i].ColumnName, type);
+                    else
+                        dtNew.Columns.Add(dt.Columns[i].ColumnName, typeof(string));
                 }
             }
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -274,12 +342,15 @@ namespace ExcelTools
                 {
                     if (dt.Rows[i][j].ToString() == "")
                     {
-                        if (type == typeof(int))
-                            dtNew.Rows[i][j] = 0;
-                        else if (type == typeof(float))
-                            dtNew.Rows[i][j] = 0.0;
-                        else if (type == typeof(string))
-                            dtNew.Rows[i][j] = DBNull.Value;
+                        foreach (var item in columnList)
+                        {
+                            if (dt.Columns[j].DataType == typeof(int) && item == j)
+                                dtNew.Rows[i][j] = 0;
+                            else if (dt.Columns[j].DataType == typeof(float) && item == j)
+                                dtNew.Rows[i][j] = 0.0;
+                            else
+                                dtNew.Rows[i][j] = DBNull.Value;
+                        }
                     }
                     else
                         dtNew.Rows[i][j] = dt.Rows[i][j];
@@ -287,10 +358,76 @@ namespace ExcelTools
             }
             dt = null;
             dt = dtNew.Copy();
+            dt.AcceptChanges();
             return dt;
         }
 
-        public static List<string> GetListColumnName(DataTable dt)
+        public DataSet SetColumnTypes(DataSet ds, Type type, int tableIndex, List<int> columnList)
+        {
+            DataTable dtNew = new DataTable();
+            DataSet dsNew = new DataSet();
+            bool flag = true;
+
+            for (int i = 0; i < ds.Tables[tableIndex].Columns.Count; i++)
+            {
+                flag = true;
+                foreach (int item in columnList)
+                {
+                    if (item == i)
+                    {
+                        dtNew.Columns.Add(ds.Tables[tableIndex].Columns[i].ColumnName, type);
+                        flag = false;
+                    }
+                }
+                if (flag)
+                {
+                    dtNew.Columns.Add(ds.Tables[tableIndex].Columns[i].ColumnName, typeof(string));
+                    flag = true;
+                }
+
+            }
+
+            for (int i = 0; i < ds.Tables[tableIndex].Rows.Count; i++)
+            {
+                dtNew.Rows.Add();
+                for (int j = 0; j < ds.Tables[tableIndex].Columns.Count; j++)
+                {
+                    if (ds.Tables[tableIndex].Rows[i][j].ToString() == "")
+                    {
+                        if (ds.Tables[tableIndex].Columns[j].DataType == typeof(int))
+                            dtNew.Rows[i][j] = 0;
+                        else if (ds.Tables[tableIndex].Columns[j].DataType == typeof(float))
+                            dtNew.Rows[i][j] = 0.0;
+                        else
+                            dtNew.Rows[i][j] = DBNull.Value;
+                    }
+                    else
+                    {
+                        dtNew.Rows[i][j] = ds.Tables[tableIndex].Rows[i][j];
+                    }
+                }
+            }
+
+            for (int i = 0; i < ds.Tables.Count; i++)
+            {
+                if (i == tableIndex)
+                {
+                    dtNew.TableName = ds.Tables[i].TableName.ToString();
+                    dsNew.Tables.Add(dtNew);
+                }
+                else
+                {
+                    dsNew.Tables.Add(ds.Tables[i]);
+                }
+            }
+            dsNew.AcceptChanges();
+            ds = null;
+            ds = dsNew.Copy();
+            ds.AcceptChanges();
+            return ds;
+        }
+
+        public List<string> GetListColumnName(DataTable dt)
         {
             List<string> colNmaeList = new List<string>();
             for (int i = 0; i < dt.Columns.Count; i++)
@@ -300,12 +437,12 @@ namespace ExcelTools
             return colNmaeList;
         }
 
-        public static string GetTableName(DataSet ds, int index)
+        public string GetTableName(DataSet ds, int index)
         {
             return ds.Tables[index].TableName.ToString();
         }
 
-        public static List<string> GetAllTableName(DataSet ds)
+        public List<string> GetAllTableName(DataSet ds)
         {
             List<string> list = new List<string>();
             for (int i = 0; i < ds.Tables.Count; i++)
@@ -315,54 +452,79 @@ namespace ExcelTools
             return list;
         }
 
-        public static DataSet RemoveTable(DataSet ds, string tableName)
+        public DataSet RemoveTable(DataSet ds, string tableName)
         {
             if (ds.Tables.Contains(tableName) && ds.Tables.CanRemove(ds.Tables[tableName]))
                 ds.Tables.Remove(ds.Tables[tableName]);
+            ds.AcceptChanges();
             return ds;
         }
 
-        public static DataSet RemoveColumn(DataSet ds, int tableIndex, int columnIndex)
+        public DataSet RemoveTable(DataSet ds, int tableIndex)
+        {
+            ds.Tables.RemoveAt(tableIndex);
+            ds.AcceptChanges();
+            return ds;
+        }
+
+        public DataSet RemoveColumn(DataSet ds, int tableIndex, int columnIndex)
         {
             ds.Tables[tableIndex].Columns.RemoveAt(columnIndex);
+            ds.AcceptChanges();
             return ds;
         }
 
-        public static DataSet RemoveColumn(DataSet ds, string tableName, string columnNmae)
+        public DataSet RemoveColumn(DataSet ds, string tableName, string columnNmae)
         {
             ds.Tables[tableName].Columns.Remove(columnNmae);
+            ds.AcceptChanges();
             return ds;
         }
 
-        public static DataTable RemoveColumn(DataTable dt, int tableIndex, int columnIndex)
+        public DataTable RemoveColumn(DataTable dt, int columnIndex)
         {
             dt.Columns.RemoveAt(columnIndex);
             return dt;
         }
 
-        public static DataTable RemoveColumn(DataTable dt, string tableName, string columnNmae)
+        public DataTable RemoveColumn(DataTable dt, string columnNmae)
         {
             dt.Columns.Remove(columnNmae);
             return dt;
         }
 
-        public static DataTable InsertColumn(DataTable dt, string columnName, Type type, int columnIndex)
+        public DataSet RemoveRow(DataSet ds, string tableName, int rowIndex)
         {
-            DataColumn Col = dt.Columns.Add(columnName, type);
-            Col.SetOrdinal(columnIndex);
-            return dt;
-        }
-
-        public static DataSet InsertColumn(DataSet ds, string columnName, Type type, int columnIndex, int tableIndex)
-        {
-            DataColumn Col = ds.Tables[tableIndex].Columns.Add(columnName, type);
-            Col.SetOrdinal(columnIndex);
+            ds.Tables[tableName].Rows[rowIndex].Delete();
+            ds.AcceptChanges();
             return ds;
         }
 
-        public static void GenerateExcelFile(DataSet ds, string paramFileFullPath, bool printCoulumnName)
+        public DataSet RemoveRow(DataSet ds, int tableIndex, int rowIndex)
         {
-            Console.WriteLine(ds.Tables[0].Columns[0].ColumnName.ToString());
+            ds.Tables[tableIndex].Rows[rowIndex].Delete();
+            ds.AcceptChanges();
+            return ds;
+        }
+
+        public DataTable InsertColumn(DataTable dt, string columnName, Type type, int columnIndex)
+        {
+            DataColumn Col = dt.Columns.Add(columnName, type);
+            Col.SetOrdinal(columnIndex);
+            dt.AcceptChanges();
+            return dt;
+        }
+
+        public DataSet InsertColumn(DataSet ds, string columnName, Type type, int columnIndex, int tableIndex)
+        {
+            DataColumn Col = ds.Tables[tableIndex].Columns.Add(columnName, type);
+            Col.SetOrdinal(columnIndex);
+            ds.AcceptChanges();
+            return ds;
+        }
+
+        public void GenerateExcelFile(DataSet ds, string paramFileFullPath, bool printCoulumnName)
+        {
             using (ExcelPackage package = new ExcelPackage())
             {
                 for (int i = 0; i < ds.Tables.Count; i++)
