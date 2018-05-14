@@ -20,7 +20,7 @@ namespace ExcelTools
                 while (!sr.EndOfStream)
                 {
                     Fulltext = sr.ReadToEnd().ToString(); // Read full file text  
-                    string[] rows = Fulltext.Split('\n'); // Split full file text into rows                      
+                    string[] rows = Fulltext.Split('\n'); // Split full file text into rows
                     for (int i = 0; i < rows.Count() - 1; i++)
                     {
                         string[] rowValues = rows[i].Split(','); // Split each row by comma
@@ -152,7 +152,7 @@ namespace ExcelTools
         {
             for (int i = 0; i < ds.Tables.Count; i++)
             {
-                for (int j = ds.Tables[i].Rows.Count - 1; j > 0; j--)
+                for (int j = ds.Tables[i].Rows.Count - 1; j > -1; j--)
                 {
                     if (ds.Tables[i].Rows[j][nonEmptyColumnIndex].ToString() == "")
                     {
@@ -160,7 +160,7 @@ namespace ExcelTools
                         ds.Tables[i].AcceptChanges();
                     }
                 }
-                for (int k = ds.Tables[i].Columns.Count - 1; k > 0; k--)
+                for (int k = ds.Tables[i].Columns.Count - 1; k > -1; k--)
                 {
                     if (ds.Tables[i].Rows.Count > 1)
                     {
@@ -179,7 +179,7 @@ namespace ExcelTools
         {
             for (int i = 0; i < ds.Tables.Count; i++)
             {
-                for (int k = ds.Tables[i].Columns.Count - 1; k > 0; k--)
+                for (int k = ds.Tables[i].Columns.Count - 1; k > -1; k--)
                 {
                     if (ds.Tables[i].Rows.Count > 1)
                     {
@@ -515,12 +515,26 @@ namespace ExcelTools
             return dt;
         }
 
-        public DataSet InsertColumn(DataSet ds, string columnName, Type type, int columnIndex, int tableIndex)
+        public DataSet InsertColumn(DataSet ds, string columnName, Type type, int tableIndex, int columnIndex)
         {
             DataColumn Col = ds.Tables[tableIndex].Columns.Add(columnName, type);
             Col.SetOrdinal(columnIndex);
             ds.AcceptChanges();
             return ds;
+        }
+
+        public DataSet InsertRow(DataSet ds, DataRow dr, int tableIndex, int rowIndex)
+        {
+            ds.Tables[tableIndex].Rows.InsertAt(dr, rowIndex);
+            ds.AcceptChanges();
+            return ds;
+        }
+
+        public DataTable InsertRow(DataTable dt, DataRow dr, int rowIndex)
+        {
+            dt.Rows.InsertAt(dr, rowIndex);
+            dt.AcceptChanges();
+            return dt;
         }
 
         public void GenerateExcelFile(DataSet ds, string paramFileFullPath, bool printCoulumnName)
@@ -542,4 +556,3 @@ namespace ExcelTools
 
     }
 }
-
