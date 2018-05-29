@@ -131,6 +131,14 @@ namespace ExcelTools
             }
         }
 
+        public void PrintTbalesName(DataSet ds)
+        {
+            for (int i = 0; i < ds.Tables.Count; i++)
+            {
+                Console.WriteLine(ds.Tables[i].TableName.ToString());
+            }
+        }
+
         public void PrintDataTable(DataTable table)
         {
             foreach (DataRow dataRow in table.Rows)
